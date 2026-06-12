@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Injury Body Map Widget</title>
+<!-- JotForm Custom Widget API -->
+<script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3248;
+    --accent: #e8502a; --accent2: #f0824a; --text: #e8eaf0; --text-dim: #8b90a8;
+    --green: #2dd4a0; --red: #ef4444;
+  }
+  html, body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); width: 100%; margin: 0; padding: 0; }
+  .widget-wrap { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .widget-title { display: flex; align-items: center; gap: 10px; }
+  .widget-title .icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .widget-title h2 { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+  .widget-title p { font-size: 11px; color: var(--text-dim); }
+  .view-toggle { display: flex; background: var(--surface2); border-radius: 8px; padding: 3px; gap: 2px; }
+  .view-toggle button { padding: 5px 16px; border: none; border-radius: 6px; background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+  .view-toggle button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+  .map-layout { display: grid; grid-template-columns: 200px 1fr; gap: 14px; align-items: start; }
+  .body-map-container { position: relative; cursor: crosshair; user-select: none; flex-shrink: 0; }
+  .body-svg { width: 100%; height: auto; display: block; }
+  .injury-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: transform 0.15s; z-index: 10; }
+  .injury-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
+  .injury-dot.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 2px 6px rgba(0,0,0,0.5); }
+  .right-col { display: flex; flex-direction: column; gap: 10px; }
+  .panel-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .legend-panel, .injuries-panel, .data-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-dim); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .injuries-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .injuries-list::-webkit-scrollbar { width: 3px; }
+  .injuries-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .injury-entry { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg); border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
+  .injury-entry:hover { border-color: var(--accent); }
+  .injury-entry.selected { border-color: rgba(255,255,255,0.4); }
+  .injury-entry .num { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; flex-shrink: 0; }
+  .injury-entry .info { flex: 1; min-width: 0; }
+  .injury-entry .type { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .injury-entry .loc { font-size: 10px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .injury-entry .rm { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; }
+  .injury-entry .rm:hover { color: var(--red); }
+  .notes-row { display: none; padding: 0 10px 8px; background: var(--bg); border: 1px solid var(--border); border-top: none; border-radius: 0 0 7px 7px; margin-top: -6px; }
+  .notes-row.visible { display: block; }
+  .notes-row input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 11px; font-family: 'Inter', sans-serif; padding: 5px 8px; outline: none; margin-top: 6px; }
+  .notes-row input:focus { border-color: var(--accent); }
+  .notes-row label { font-size: 10px; color: var(--text-dim); }
+  .empty-state { text-align: center; padding: 16px 0; color: var(--text-dim); font-size: 12px; }
+  .empty-state .ei { font-size: 22px; margin-bottom: 6px; }
+  .tip { font-size: 11px; color: var(--text-dim); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+  .data-output { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--green); white-space: pre; overflow-x: auto; max-height: 100px; overflow-y: auto; line-height: 1.5; }
+  .data-output::-webkit-scrollbar { width: 3px; height: 3px; }
+  .data-output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .data-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: white; flex: 1; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--text-dim); }
+  .copy-fb { font-size: 10px; color: var(--green); margin-top: 4px; height: 12px; }
+  .injury-popup { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; z-index: 9999; box-shadow: 0 8px 28px rgba(0,0,0,0.7); min-width: 180px; display: none; }
+  .injury-popup.visible { display: block; }
+  .injury-popup h4 { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .inj-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 5px; transition: background 0.1s; text-align: left; }
+  .inj-btn:hover { background: var(--surface2); }
+  .inj-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .pop-cancel { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); width: 100%; text-align: center; background: transparent; border-left: none; border-right: none; border-bottom: none; color: var(--text-dim); font-size: 11px; cursor: pointer; font-family: 'Inter', sans-serif; padding-bottom: 2px; }
+  @media (max-width: 500px) { .map-layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="widget-wrap">
+  <div class="top-bar">
+    <div class="widget-title">
+      <div class="icon">🚴</div>
+      <div><h2>Injury Body Map</h2><p>Click the body to record injury locations</p></div>
+    </div>
+    <div class="view-toggle">
+      <button class="active" onclick="setView('front')">▶ Front</button>
+      <button onclick="setView('back')">◀ Back</button>
+    </div>
+  </div>
+
+  <div class="tip">👆 Click on the body diagram to place a marker, then select the injury type. Click a marker to add notes.</div>
+
+  <div class="map-layout">
+    <div class="body-map-container" id="bodyMapContainer">
+      <div id="markerLayer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></div>
+    </div>
+    <div class="right-col">
+      <div class="legend-panel">
+        <div class="panel-label">Injury Types</div>
+        <div class="legend-grid" id="legendGrid"></div>
+      </div>
+      <div class="injuries-panel">
+        <div class="panel-label">Recorded Injuries</div>
+        <div class="injuries-list" id="injuriesList">
+          <div class="empty-state"><div class="ei">📍</div>No injuries yet.<br>Click the body map.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-bar">
+    <div class="panel-label">Form Data (auto-submitted with form)</div>
+    <div class="data-output" id="dataOutput">// No injuries recorded yet</div>
+    <div class="data-actions">
+      <button class="btn btn-primary" onclick="copyCSV()">Copy CSV</button>
+      <button class="btn btn-ghost" onclick="copyJSON()">JSON</button>
+      <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    </div>
+    <div class="copy-fb" id="copyFb"></div>
+  </div>
+</div>
+
+<div class="injury-popup" id="injuryPopup">
+  <h4>Select Injury Type</h4>
+  <div id="injuryTypeBtns"></div>
+  <button class="pop-cancel" onclick="cancelPopup()">Cancel</button>
+</div>
+
+<script>
+var INJURY_TYPES = [
+  { id: 'laceration',  label: 'Laceration',        color: '#ef4444' },
+  { id: 'fracture',    label: 'Fracture',           color: '#a855f7' },
+  { id: 'graze',       label: 'Graze / Abrasion',   color: '#f97316' },
+  { id: 'bruise',      label: 'Bruise / Contusion', color: '#4a8ef5' },
+  { id: 'burn',        label: 'Burn',               color: '#f5c842' },
+  { id: 'sprain',      label: 'Sprain',             color: '#2dd4a0' },
+  { id: 'dislocation', label: 'Dislocation',        color: '#e8502a' },
+  { id: 'other',       label: 'Other',              color: '#8b90a8' }
+];
+
+var REGIONS_FRONT = [
+  { name:'Head',            x:[38,62], y:[2,14]   },{ name:'Neck',           x:[43,57], y:[14,19]  },
+  { name:'Left Shoulder',   x:[28,43], y:[19,30]  },{ name:'Right Shoulder', x:[57,72], y:[19,30]  },
+  { name:'Left Upper Arm',  x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',x:[65,80], y:[30,48]  },
+  { name:'Left Elbow',      x:[18,32], y:[48,54]  },{ name:'Right Elbow',    x:[68,82], y:[48,54]  },
+  { name:'Left Forearm',    x:[14,30], y:[54,68]  },{ name:'Right Forearm',  x:[70,86], y:[54,68]  },
+  { name:'Left Hand',       x:[10,26], y:[68,80]  },{ name:'Right Hand',     x:[74,90], y:[68,80]  },
+  { name:'Chest',           x:[35,65], y:[20,38]  },{ name:'Abdomen',        x:[36,64], y:[38,52]  },
+  { name:'Left Hip',        x:[35,48], y:[52,62]  },{ name:'Right Hip',      x:[52,65], y:[52,62]  },
+  { name:'Left Thigh',      x:[34,49], y:[62,76]  },{ name:'Right Thigh',    x:[51,66], y:[62,76]  },
+  { name:'Left Knee',       x:[34,49], y:[76,82]  },{ name:'Right Knee',     x:[51,66], y:[76,82]  },
+  { name:'Left Lower Leg',  x:[34,48], y:[82,92]  },{ name:'Right Lower Leg',x:[52,66], y:[82,92]  },
+  { name:'Left Foot',       x:[32,48], y:[92,100] },{ name:'Right Foot',     x:[52,68], y:[92,100] }
+];
+
+var REGIONS_BACK = [
+  { name:'Back of Head',          x:[38,62], y:[2,14]   },{ name:'Neck (Rear)',          x:[43,57], y:[14,19]  },
+  { name:'Left Shoulder (Rear)',  x:[28,43], y:[19,30]  },{ name:'Right Shoulder (Rear)',x:[57,72], y:[19,30]  },
+  { name:'Left Upper Arm',        x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',      x:[65,80], y:[30,48]  },
+  { name:'Left Elbow (Rear)',     x:[18,32], y:[48,54]  },{ name:'Right Elbow (Rear)',   x:[68,82], y:[48,54]  },
+  { name:'Left Forearm',          x:[14,30], y:[54,68]  },{ name:'Right Forearm',        x:[70,86], y:[54,68]  },
+  { name:'Left Hand',             x:[10,26], y:[68,80]  },{ name:'Right Hand',           x:[74,90], y:[68,80]  },
+  { name:'Upper Back',            x:[35,65], y:[20,36]  },{ name:'Lower Back',           x:[36,64], y:[36,52]  },
+  { name:'Left Buttock',          x:[35,49], y:[52,63]  },{ name:'Right Buttock',        x:[51,65], y:[52,63]  },
+  { name:'Left Thigh (Rear)',     x:[34,49], y:[63,76]  },{ name:'Right Thigh (Rear)',   x:[51,66], y:[63,76]  },
+  { name:'Left Knee (Rear)',      x:[34,49], y:[76,82]  },{ name:'Right Knee (Rear)',    x:[51,66], y:[76,82]  },
+  { name:'Left Calf',             x:[34,48], y:[82,92]  },{ name:'Right Calf',           x:[52,66], y:[82,92]  },
+  { name:'Left Heel/Foot',        x:[32,48], y:[92,100] },{ name:'Right Heel/Foot',      x:[52,68], y:[92,100] }
+];
+
+var currentView = 'front', injuries = [], pendingClick = null, selectedInj = null, counter = 0;
+
+// ── JotForm Widget API ──────────────────────────────────────────
+JFCustomWidget.subscribe('ready', function() {
+  resizeWidget();
+  JFCustomWidget.subscribe('submit', function() {
+    JFCustomWidget.sendSubmit({ valid: true, value: buildCSV() });
+  });
+});
+
+function resizeWidget() {
+  JFCustomWidget.requestFrameResize({ height: document.body.scrollHeight + 20 });
+}
+
+function buildCSV() {
+  if (!injuries.length) return '';
+  var header = 'injury_num,type,body_view,region,notes,x_pct,y_pct';
+  var rows = injuries.map(function(i) {
+    var n = (i.notes || '').replace(/"/g, '""');
+    return i.id+','+i.label+','+i.view+','+i.region+',"'+n+'",'+i.xPct.toFixed(1)+','+i.yPct.toFixed(1);
+  });
+  return [header].concat(rows).join('\n');
+}
+
+// ── Body SVG ────────────────────────────────────────────────────
+function buildBodySVG(view) {
+  var f = view === 'front';
+  var extra = f
+    ? '<ellipse cx="88" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><ellipse cx="112" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><path d="M90 62 Q100 68 110 62" stroke="#4a5180" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="100" y1="112" x2="100" y2="200" stroke="#2e3560" stroke-width="1" opacity="0.6"/>'
+    : '<ellipse cx="66" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="134" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><line x1="100" y1="112" x2="100" y2="265" stroke="#2e3560" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,4"/>';
+  return '<svg class="body-svg" viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" id="bodySVG">'
+    +'<defs><radialGradient id="bg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2e3560"/><stop offset="100%" stop-color="#1a1d2e"/></radialGradient></defs>'
+    +'<ellipse cx="100" cy="48" rx="34" ry="42" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'+extra
+    +'<rect x="88" y="86" width="24" height="22" rx="4" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M58 108 C42 112 36 130 34 155 L32 235 C32 248 36 258 44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C164 258 168 248 168 235 L166 155 C164 130 158 112 142 108 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M58 112 C46 116 36 124 28 145 L20 190 C18 200 20 210 28 214 L36 216 C44 218 50 212 52 202 L58 168 L62 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M28 214 L36 216 L40 265 L26 280 L16 268 L20 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<ellipse cx="28" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M142 112 C154 116 164 124 172 145 L180 190 C182 200 180 210 172 214 L164 216 C156 218 150 212 148 202 L142 168 L138 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M172 214 L164 216 L160 265 L174 280 L184 268 L180 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<ellipse cx="172" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C166 274 168 292 160 308 L152 322 L48 322 L40 308 C32 292 34 274 44 262 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M52 318 C46 328 42 346 42 365 L42 405 C42 418 48 426 58 428 L70 428 C80 428 84 420 84 408 L84 368 C84 348 80 330 72 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M148 318 C154 328 158 346 158 365 L158 405 C158 418 152 426 142 428 L130 428 C120 428 116 420 116 408 L116 368 C116 348 120 330 128 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<ellipse cx="63" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<ellipse cx="137" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M42 440 C40 456 40 470 44 484 L48 502 L78 502 L80 484 L84 470 L84 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M116 440 C116 456 116 470 120 484 L122 502 L152 502 L156 484 L160 470 L158 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M44 500 L44 514 C44 518 48 520 52 520 L82 520 C86 520 82 514 80 510 L78 502 L44 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<path d="M120 500 L118 510 C116 514 118 520 122 520 L148 520 C152 520 156 518 156 514 L156 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
+    +'<rect id="clickOverlay" x="0" y="0" width="200" height="520" fill="transparent" style="cursor:crosshair;"/>'
+    +'</svg>';
+}
+
+function getRegion(x, y) {
+  var rs = currentView === 'front' ? REGIONS_FRONT : REGIONS_BACK;
+  for (var i = 0; i < rs.length; i++) {
+    if (x >= rs[i].x[0] && x <= rs[i].x[1] && y >= rs[i].y[0] && y <= rs[i].y[1]) return rs[i].name;
+  }
+  return 'Body';
+}
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.view-toggle button').forEach(function(b, i) {
+    b.classList.toggle('active', (i===0&&v==='front')||(i===1&&v==='back'));
+  });
+  renderBodyMap(); renderMarkers();
+}
+
+function renderBodyMap() {
+  var c = document.getElementById('bodyMapContainer');
+  var ex = c.querySelector('svg'); if (ex) ex.remove();
+  var ml = document.getElementById('markerLayer');
+  var svg = new DOMParser().parseFromString(buildBodySVG(currentView), 'image/svg+xml').documentElement;
+  c.insertBefore(svg, ml);
+  c.querySelector('svg').addEventListener('click', onBodyClick);
+}
+
+function onBodyClick(e) {
+  var svg = document.getElementById('bodySVG');
+  var r = svg.getBoundingClientRect();
+  var x = ((e.clientX - r.left) / r.width) * 100;
+  var y = ((e.clientY - r.top)  / r.height) * 100;
+  if (x < 0 || x > 100 || y < 0 || y > 100) return;
+  pendingClick = { xPct: x, yPct: y, view: currentView, region: getRegion(x, y) };
+  var popup = document.getElementById('injuryPopup');
+  popup.classList.add('visible');
+  var left = e.clientX + 10, top = e.clientY - 10;
+  if (left + 200 > window.innerWidth)  left = e.clientX - 210;
+  if (top  + 290 > window.innerHeight) top  = window.innerHeight - 300;
+  popup.style.left = left + 'px'; popup.style.top = top + 'px';
+}
+
+function cancelPopup() {
+  document.getElementById('injuryPopup').classList.remove('visible');
+  pendingClick = null;
+}
+
+function selectInjuryType(tid) {
+  if (!pendingClick) return;
+  document.getElementById('injuryPopup').classList.remove('visible');
+  counter++;
+  var t = INJURY_TYPES.filter(function(x){ return x.id===tid; })[0];
+  injuries.push({ id: counter, type: t.id, label: t.label, color: t.color,
+    view: pendingClick.view, region: pendingClick.region,
+    xPct: pendingClick.xPct, yPct: pendingClick.yPct, notes: '' });
+  pendingClick = null;
+  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+}
+
+function renderMarkers() {
+  var layer = document.getElementById('markerLayer');
+  layer.innerHTML = '';
+  injuries.filter(function(inj){ return inj.view === currentView; }).forEach(function(inj) {
+    var dot = document.createElement('div');
+    dot.className = 'injury-dot' + (selectedInj === inj.id ? ' selected' : '');
+    dot.style.background = inj.color;
+    dot.style.left = inj.xPct + '%'; dot.style.top = inj.yPct + '%';
+    dot.textContent = inj.id; dot.title = inj.label + ' — ' + inj.region;
+    dot.style.pointerEvents = 'all';
+    dot.onclick = function(e) { e.stopPropagation(); selectInjury(inj.id); };
+    layer.appendChild(dot);
+  });
+}
+
+function selectInjury(id) {
+  selectedInj = selectedInj === id ? null : id;
+  renderMarkers(); renderInjuriesList();
+}
+
+function removeInjury(id) {
+  injuries = injuries.filter(function(i){ return i.id !== id; });
+  if (selectedInj === id) selectedInj = null;
+  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+}
+
+function updateNotes(id, val) {
+  var inj = injuries.filter(function(i){ return i.id===id; })[0];
+  if (inj) { inj.notes = val; updateDataOutput(); }
+}
+
+function renderInjuriesList() {
+  var list = document.getElementById('injuriesList');
+  if (!injuries.length) {
+    list.innerHTML = '<div class="empty-state"><div class="ei">📍</div>No injuries yet.<br>Click the body map.</div>';
+    return;
+  }
+  list.innerHTML = injuries.map(function(inj) {
+    var sel = selectedInj === inj.id;
+    return '<div>'
+      +'<div class="injury-entry'+(sel?' selected':'')+'" onclick="selectInjury('+inj.id+')">'
+      +'<div class="num" style="background:'+inj.color+'">'+inj.id+'</div>'
+      +'<div class="info"><div class="type">'+inj.label+'</div>'
+      +'<div class="loc">'+(inj.view==='front'?'▶':'◀')+' '+inj.region+'</div></div>'
+      +'<button class="rm" onclick="event.stopPropagation();removeInjury('+inj.id+')" title="Remove">×</button>'
+      +'</div>'
+      +'<div class="notes-row'+(sel?' visible':'') + '">'
+      +'<label>Notes</label>'
+      +'<input type="text" placeholder="e.g. approx. 3cm wound, bleeding controlled…" value="'+(inj.notes||'')+'" oninput="updateNotes('+inj.id+', this.value)"/>'
+      +'</div></div>';
+  }).join('');
+}
+
+function updateDataOutput() {
+  document.getElementById('dataOutput').textContent = buildCSV() || '// No injuries recorded yet';
+}
+
+function copyCSV() {
+  var c = buildCSV(); if (!c) { fb('No injuries to copy'); return; }
+  navigator.clipboard.writeText(c); fb('✓ CSV copied');
+}
+
+function copyJSON() {
+  if (!injuries.length) { fb('No injuries to copy'); return; }
+  var d = injuries.map(function(i) {
+    return { injury_num:i.id, type:i.label, body_view:i.view, region:i.region, notes:i.notes,
+             coordinates:{ x:parseFloat(i.xPct.toFixed(1)), y:parseFloat(i.yPct.toFixed(1)) } };
+  });
+  navigator.clipboard.writeText(JSON.stringify(d, null, 2)); fb('✓ JSON copied');
+}
+
+function clearAll() {
+  if (!injuries.length) return;
+  if (!confirm('Clear all recorded injuries?')) return;
+  injuries = []; counter = 0; selectedInj = null;
+  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+}
+
+function fb(msg) {
+  var el = document.getElementById('copyFb'); el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 2000);
+}
+
+// ── Init ────────────────────────────────────────────────────────
+document.getElementById('legendGrid').innerHTML = INJURY_TYPES.map(function(t) {
+  return '<div class="legend-item"><div class="legend-dot" style="background:'+t.color+'"></div><span>'+t.label+'</span></div>';
+}).join('');
+
+document.getElementById('injuryTypeBtns').innerHTML = INJURY_TYPES.map(function(t) {
+  return '<button class="inj-btn" onclick="selectInjuryType(\''+t.id+'\')">'
+        +'<div class="dot" style="background:'+t.color+'"></div>'+t.label+'</button>';
+}).join('');
+
+document.addEventListener('click', function(e) {
+  var p = document.getElementById('injuryPopup');
+  if (p.classList.contains('visible') && !p.contains(e.target)) cancelPopup();
+});
+
+window.addEventListener('resize', renderMarkers);
+
+renderBodyMap();
+renderInjuriesList();
+updateDataOutput();
+</script>
+</body>
+</html>
