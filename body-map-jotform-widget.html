@@ -23,9 +23,9 @@
   .view-toggle button { padding: 5px 16px; border: none; border-radius: 6px; background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
   .view-toggle button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
   .map-layout { display: grid; grid-template-columns: 200px 1fr; gap: 14px; align-items: start; }
-  .body-map-container { position: relative; cursor: crosshair; user-select: none; flex-shrink: 0; }
-  .body-svg { width: 100%; height: auto; display: block; pointer-events: auto; }
-  .injury-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 10px; z-index: 10; pointer-events: auto; }
+  .body-map-container { position: relative; cursor: crosshair; user-select: none; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; min-height: 300px; }
+  .body-svg { width: 100%; height: auto; display: block; }
+  .injury-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 10px; z-index: 10; }
   .injury-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
   .injury-dot.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 2px 6px rgba(0,0,0,0.5); }
   .right-col { display: flex; flex-direction: column; gap: 10px; }
@@ -44,7 +44,7 @@
   .injury-entry .info { flex: 1; min-width: 0; }
   .injury-entry .type { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .injury-entry .loc { font-size: 10px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .injury-entry .rm { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; pointer-events: auto; }
+  .injury-entry .rm { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; }
   .injury-entry .rm:hover { color: var(--red); }
   .notes-row { display: none; padding: 0 10px 8px; background: var(--bg); border: 1px solid var(--border); border-top: none; border-radius: 0 0 7px 7px; margin-top: -6px; }
   .notes-row.visible { display: block; }
@@ -58,20 +58,19 @@
   .data-output::-webkit-scrollbar { width: 3px; height: 3px; }
   .data-output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .data-actions { display: flex; gap: 8px; margin-top: 8px; }
-  .btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s; pointer-events: auto; }
+  .btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s; }
   .btn-primary { background: var(--accent); color: white; flex: 1; }
   .btn-primary:hover { background: var(--accent2); }
   .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-ghost:hover { border-color: var(--text-dim); }
   .copy-fb { font-size: 10px; color: var(--green); margin-top: 4px; height: 12px; }
-  .injury-popup { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; z-index: 99999; box-shadow: 0 8px 28px rgba(0,0,0,0.7); min-width: 180px; display: none; pointer-events: auto; }
+  .injury-popup { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; z-index: 99999; box-shadow: 0 8px 28px rgba(0,0,0,0.7); min-width: 180px; display: none; }
   .injury-popup.visible { display: block; }
   .injury-popup h4 { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
-  .inj-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 4px; transition: background 0.15s; pointer-events: auto; }
+  .inj-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
   .inj-btn:hover { background: var(--surface2); }
-  .inj-btn:active { background: var(--surface2); }
   .inj-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .pop-cancel { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); width: 100%; text-align: center; background: transparent; border-left: none; border-right: none; border-bottom: none; color: var(--text-dim); cursor: pointer; font-size: 11px; pointer-events: auto; }
+  .pop-cancel { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); width: 100%; text-align: center; background: transparent; border-left: none; border-right: none; border-bottom: none; color: var(--text-dim); cursor: pointer; font-size: 11px; }
   @media (max-width: 500px) { .map-layout { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -83,15 +82,15 @@
       <div><h2>Injury Body Map</h2><p>Click the body to record injury locations</p></div>
     </div>
     <div class="view-toggle">
-      <button class="active" data-view="front">▶ Front</button>
-      <button data-view="back">◀ Back</button>
+      <button class="active" onclick="window.setView && setView('front')">▶ Front</button>
+      <button onclick="window.setView && setView('back')">◀ Back</button>
     </div>
   </div>
 
-  <div class="tip">👆 Click on the body diagram to place a marker, then select the injury type. Click a marker to add notes.</div>
+  <div class="tip">👆 Click on the body diagram to place a marker, then select the injury type.</div>
 
   <div class="map-layout">
-    <div class="body-map-container" id="bodyMapContainer">
+    <div class="body-map-container" id="bodyMapContainer" onclick="window.onContainerClick && onContainerClick(event)">
       <div id="markerLayer" style="position:absolute;top:0;left:0;width:100%;height:100%;"></div>
     </div>
     <div class="right-col">
@@ -109,12 +108,12 @@
   </div>
 
   <div class="data-bar">
-    <div class="panel-label">Form Data (auto-submitted with form)</div>
+    <div class="panel-label">Form Data</div>
     <div class="data-output" id="dataOutput">// No injuries recorded yet</div>
     <div class="data-actions">
-      <button class="btn btn-primary" id="copyCSVBtn">Copy CSV</button>
-      <button class="btn btn-ghost" id="copyJSONBtn">JSON</button>
-      <button class="btn btn-ghost" id="clearBtn">Clear</button>
+      <button class="btn btn-primary" onclick="window.copyCSV && copyCSV()">Copy CSV</button>
+      <button class="btn btn-ghost" onclick="window.copyJSON && copyJSON()">JSON</button>
+      <button class="btn btn-ghost" onclick="window.clearAll && clearAll()">Clear</button>
     </div>
     <div class="copy-fb" id="copyFb"></div>
   </div>
@@ -123,343 +122,234 @@
 <div class="injury-popup" id="injuryPopup">
   <h4>Select Injury Type</h4>
   <div id="injuryTypeBtns"></div>
-  <button class="pop-cancel" id="popupCancelBtn">Cancel</button>
+  <button class="pop-cancel" onclick="window.cancelPopup && cancelPopup()">Cancel</button>
 </div>
 
 <script>
-console.log('Widget script starting...');
-
-var INJURY_TYPES = [
-  { id: 'laceration',  label: 'Laceration',        color: '#ef4444' },
-  { id: 'fracture',    label: 'Fracture',           color: '#a855f7' },
-  { id: 'graze',       label: 'Graze / Abrasion',   color: '#f97316' },
-  { id: 'bruise',      label: 'Bruise / Contusion', color: '#4a8ef5' },
-  { id: 'burn',        label: 'Burn',               color: '#f5c842' },
-  { id: 'sprain',      label: 'Sprain',             color: '#2dd4a0' },
-  { id: 'dislocation', label: 'Dislocation',        color: '#e8502a' },
-  { id: 'other',       label: 'Other',              color: '#8b90a8' }
-];
-
-var REGIONS_FRONT = [
-  { name:'Head',            x:[38,62], y:[2,14]   },{ name:'Neck',           x:[43,57], y:[14,19]  },
-  { name:'Left Shoulder',   x:[28,43], y:[19,30]  },{ name:'Right Shoulder', x:[57,72], y:[19,30]  },
-  { name:'Left Upper Arm',  x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',x:[65,80], y:[30,48]  },
-  { name:'Left Elbow',      x:[18,32], y:[48,54]  },{ name:'Right Elbow',    x:[68,82], y:[48,54]  },
-  { name:'Left Forearm',    x:[14,30], y:[54,68]  },{ name:'Right Forearm',  x:[70,86], y:[54,68]  },
-  { name:'Left Hand',       x:[10,26], y:[68,80]  },{ name:'Right Hand',     x:[74,90], y:[68,80]  },
-  { name:'Chest',           x:[35,65], y:[20,38]  },{ name:'Abdomen',        x:[36,64], y:[38,52]  },
-  { name:'Left Hip',        x:[35,48], y:[52,62]  },{ name:'Right Hip',      x:[52,65], y:[52,62]  },
-  { name:'Left Thigh',      x:[34,49], y:[62,76]  },{ name:'Right Thigh',    x:[51,66], y:[62,76]  },
-  { name:'Left Knee',       x:[34,49], y:[76,82]  },{ name:'Right Knee',     x:[51,66], y:[76,82]  },
-  { name:'Left Lower Leg',  x:[34,48], y:[82,92]  },{ name:'Right Lower Leg',x:[52,66], y:[82,92]  },
-  { name:'Left Foot',       x:[32,48], y:[92,100] },{ name:'Right Foot',     x:[52,68], y:[92,100] }
-];
-
-var REGIONS_BACK = [
-  { name:'Back of Head',          x:[38,62], y:[2,14]   },{ name:'Neck (Rear)',          x:[43,57], y:[14,19]  },
-  { name:'Left Shoulder (Rear)',  x:[28,43], y:[19,30]  },{ name:'Right Shoulder (Rear)',x:[57,72], y:[19,30]  },
-  { name:'Left Upper Arm',        x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',      x:[65,80], y:[30,48]  },
-  { name:'Left Elbow (Rear)',     x:[18,32], y:[48,54]  },{ name:'Right Elbow (Rear)',   x:[68,82], y:[48,54]  },
-  { name:'Left Forearm',          x:[14,30], y:[54,68]  },{ name:'Right Forearm',        x:[70,86], y:[54,68]  },
-  { name:'Left Hand',             x:[10,26], y:[68,80]  },{ name:'Right Hand',           x:[74,90], y:[68,80]  },
-  { name:'Upper Back',            x:[35,65], y:[20,36]  },{ name:'Lower Back',           x:[36,64], y:[36,52]  },
-  { name:'Left Buttock',          x:[35,49], y:[52,63]  },{ name:'Right Buttock',        x:[51,65], y:[52,63]  },
-  { name:'Left Thigh (Rear)',     x:[34,49], y:[63,76]  },{ name:'Right Thigh (Rear)',   x:[51,66], y:[63,76]  },
-  { name:'Left Knee (Rear)',      x:[34,49], y:[76,82]  },{ name:'Right Knee (Rear)',    x:[51,66], y:[76,82]  },
-  { name:'Left Calf',             x:[34,48], y:[82,92]  },{ name:'Right Calf',           x:[52,66], y:[82,92]  },
-  { name:'Left Heel/Foot',        x:[32,48], y:[92,100] },{ name:'Right Heel/Foot',      x:[52,68], y:[92,100] }
-];
-
-var currentView = 'front', injuries = [], pendingClick = null, selectedInj = null, counter = 0;
-
-function buildBodySVG(view) {
-  var f = view === 'front';
-  var extra = f
-    ? '<ellipse cx="88" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><ellipse cx="112" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><path d="M90 62 Q100 68 110 62" stroke="#4a5180" stroke-width="1" opacity="0.6"/>'
-    : '<ellipse cx="66" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="134" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><line x1="68" y1="42" x2="70" y2="35" stroke="#4a5180" stroke-width="1"/><line x1="132" y1="42" x2="130" y2="35" stroke="#4a5180" stroke-width="1"/>';
-  return '<svg class="body-svg" viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" id="bodySVG" style="pointer-events: auto;">'
-    +'<defs><radialGradient id="bg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2e3560"/><stop offset="100%" stop-color="#1a1d2e"/></radialGradient></defs>'
-    +'<ellipse cx="100" cy="48" rx="34" ry="42" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'+extra
-    +'<rect x="88" y="86" width="24" height="22" rx="4" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M58 108 C42 112 36 130 34 155 L32 235 C32 248 36 258 44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C164 258 168 248 168 235 L166 155 C164 130 158 112 142 108 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M58 112 C46 116 36 124 28 145 L20 190 C18 200 20 210 28 214 L36 216 C44 218 50 212 52 202 L58 168 L62 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M28 214 L36 216 L40 265 L26 280 L16 268 L20 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<ellipse cx="28" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M142 112 C154 116 164 124 172 145 L180 190 C182 200 180 210 172 214 L164 216 C156 218 150 212 148 202 L142 168 L138 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M172 214 L164 216 L160 265 L174 280 L184 268 L180 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<ellipse cx="172" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C166 274 168 292 160 308 L152 322 L48 322 L40 308 C32 292 34 274 44 262 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M52 318 C46 328 42 346 42 365 L42 405 C42 418 48 426 58 428 L70 428 C80 428 84 420 84 408 L84 368 C84 348 80 330 72 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M148 318 C154 328 158 346 158 365 L158 405 C158 418 152 426 142 428 L130 428 C120 428 116 420 116 408 L116 368 C116 348 120 330 128 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<ellipse cx="63" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<ellipse cx="137" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M42 440 C40 456 40 470 44 484 L48 502 L78 502 L80 484 L84 470 L84 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M116 440 C116 456 116 470 120 484 L122 502 L152 502 L156 484 L160 470 L158 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M44 500 L44 514 C44 518 48 520 52 520 L82 520 C86 520 82 514 80 510 L78 502 L44 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<path d="M120 500 L118 510 C116 514 118 520 122 520 L148 520 C152 520 156 518 156 514 L156 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<rect id="clickOverlay" x="0" y="0" width="200" height="520" fill="transparent" style="cursor:crosshair; pointer-events: auto;"/>'
-    +'</svg>';
-}
-
-function getRegion(x, y) {
-  var rs = currentView === 'front' ? REGIONS_FRONT : REGIONS_BACK;
-  for (var i = 0; i < rs.length; i++) {
-    if (x >= rs[i].x[0] && x <= rs[i].x[1] && y >= rs[i].y[0] && y <= rs[i].y[1]) return rs[i].name;
-  }
-  return 'Body';
-}
-
-function setView(v) {
-  console.log('Setting view to:', v);
-  currentView = v;
-  document.querySelectorAll('.view-toggle button').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.view === v);
-  });
-  renderBodyMap(); renderMarkers();
-}
-
-function renderBodyMap() {
-  console.log('Rendering body map...');
-  var c = document.getElementById('bodyMapContainer');
-  if (!c) { console.error('bodyMapContainer not found'); return; }
-  var ex = c.querySelector('svg'); 
-  if (ex) ex.remove();
-  var ml = document.getElementById('markerLayer');
-  var svgStr = buildBodySVG(currentView);
-  var parser = new DOMParser();
-  var doc = parser.parseFromString(svgStr, 'text/html');
-  var svg = doc.querySelector('svg');
-  if (svg) {
-    c.insertBefore(svg, ml);
-    console.log('SVG inserted, adding click listener');
-    svg.addEventListener('click', onBodyClick);
-  } else {
-    console.error('SVG parsing failed');
-  }
-}
-
-function onBodyClick(e) {
-  console.log('Body click detected!', e);
-  var svg = document.getElementById('bodySVG');
-  if (!svg) { console.error('SVG element not found'); return; }
-  var r = svg.getBoundingClientRect();
-  var x = ((e.clientX - r.left) / r.width) * 100;
-  var y = ((e.clientY - r.top)  / r.height) * 100;
-  console.log('Click coordinates:', x, y);
-  if (x < 0 || x > 100 || y < 0 || y > 100) { console.log('Click outside bounds'); return; }
+(function() {
+  'use strict';
+  console.log('=== WIDGET STARTING ===');
   
-  var region = getRegion(x, y);
-  console.log('Region selected:', region);
-  
-  pendingClick = { xPct: x, yPct: y, view: currentView, region: region };
-  var popup = document.getElementById('injuryPopup');
-  if (!popup) { console.error('Popup not found'); return; }
-  
-  console.log('Showing popup');
-  popup.classList.add('visible');
-  var left = e.clientX + 10, top = e.clientY - 10;
-  if (left + 200 > window.innerWidth)  left = e.clientX - 210;
-  if (top  + 290 > window.innerHeight) top  = window.innerHeight - 300;
-  popup.style.left = left + 'px'; popup.style.top = top + 'px';
-}
+  var INJURY_TYPES = [
+    { id: 'laceration',  label: 'Laceration',        color: '#ef4444' },
+    { id: 'fracture',    label: 'Fracture',           color: '#a855f7' },
+    { id: 'graze',       label: 'Graze / Abrasion',   color: '#f97316' },
+    { id: 'bruise',      label: 'Bruise / Contusion', color: '#4a8ef5' },
+    { id: 'burn',        label: 'Burn',               color: '#f5c842' },
+    { id: 'sprain',      label: 'Sprain',             color: '#2dd4a0' },
+    { id: 'dislocation', label: 'Dislocation',        color: '#e8502a' },
+    { id: 'other',       label: 'Other',              color: '#8b90a8' }
+  ];
 
-function cancelPopup() {
-  console.log('Canceling popup');
-  var popup = document.getElementById('injuryPopup');
-  if (popup) popup.classList.remove('visible');
-  pendingClick = null;
-}
+  var REGIONS_FRONT = [
+    { name:'Head',            x:[38,62], y:[2,14]   },{ name:'Neck',           x:[43,57], y:[14,19]  },
+    { name:'Left Shoulder',   x:[28,43], y:[19,30]  },{ name:'Right Shoulder', x:[57,72], y:[19,30]  },
+    { name:'Left Upper Arm',  x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',x:[65,80], y:[30,48]  },
+    { name:'Left Elbow',      x:[18,32], y:[48,54]  },{ name:'Right Elbow',    x:[68,82], y:[48,54]  },
+    { name:'Left Forearm',    x:[14,30], y:[54,68]  },{ name:'Right Forearm',  x:[70,86], y:[54,68]  },
+    { name:'Left Hand',       x:[10,26], y:[68,80]  },{ name:'Right Hand',     x:[74,90], y:[68,80]  },
+    { name:'Chest',           x:[35,65], y:[20,38]  },{ name:'Abdomen',        x:[36,64], y:[38,52]  },
+    { name:'Left Hip',        x:[35,48], y:[52,62]  },{ name:'Right Hip',      x:[52,65], y:[52,62]  },
+    { name:'Left Thigh',      x:[34,49], y:[62,76]  },{ name:'Right Thigh',    x:[51,66], y:[62,76]  },
+    { name:'Left Knee',       x:[34,49], y:[76,82]  },{ name:'Right Knee',     x:[51,66], y:[76,82]  },
+    { name:'Left Lower Leg',  x:[34,48], y:[82,92]  },{ name:'Right Lower Leg',x:[52,66], y:[82,92]  },
+    { name:'Left Foot',       x:[32,48], y:[92,100] },{ name:'Right Foot',     x:[52,68], y:[92,100] }
+  ];
 
-function selectInjuryType(tid) {
-  console.log('Selecting injury type:', tid);
-  if (!pendingClick) { console.error('No pending click'); return; }
-  var popup = document.getElementById('injuryPopup');
-  if (popup) popup.classList.remove('visible');
-  counter++;
-  var t = INJURY_TYPES.filter(function(x){ return x.id===tid; })[0];
-  if (!t) { console.error('Injury type not found:', tid); return; }
-  injuries.push({ id: counter, type: t.id, label: t.label, color: t.color,
-    view: pendingClick.view, region: pendingClick.region,
-    xPct: pendingClick.xPct, yPct: pendingClick.yPct, notes: '' });
-  console.log('Injury added:', counter);
-  pendingClick = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput();
-}
+  var REGIONS_BACK = [
+    { name:'Back of Head',          x:[38,62], y:[2,14]   },{ name:'Neck (Rear)',          x:[43,57], y:[14,19]  },
+    { name:'Left Shoulder (Rear)',  x:[28,43], y:[19,30]  },{ name:'Right Shoulder (Rear)',x:[57,72], y:[19,30]  },
+    { name:'Left Upper Arm',        x:[20,35], y:[30,48]  },{ name:'Right Upper Arm',      x:[65,80], y:[30,48]  },
+    { name:'Left Elbow (Rear)',     x:[18,32], y:[48,54]  },{ name:'Right Elbow (Rear)',   x:[68,82], y:[48,54]  },
+    { name:'Left Forearm',          x:[14,30], y:[54,68]  },{ name:'Right Forearm',        x:[70,86], y:[54,68]  },
+    { name:'Left Hand',             x:[10,26], y:[68,80]  },{ name:'Right Hand',           x:[74,90], y:[68,80]  },
+    { name:'Upper Back',            x:[35,65], y:[20,36]  },{ name:'Lower Back',           x:[36,64], y:[36,52]  },
+    { name:'Left Buttock',          x:[35,49], y:[52,63]  },{ name:'Right Buttock',        x:[51,65], y:[52,63]  },
+    { name:'Left Thigh (Rear)',     x:[34,49], y:[63,76]  },{ name:'Right Thigh (Rear)',   x:[51,66], y:[63,76]  },
+    { name:'Left Knee (Rear)',      x:[34,49], y:[76,82]  },{ name:'Right Knee (Rear)',    x:[51,66], y:[76,82]  },
+    { name:'Left Calf',             x:[34,48], y:[82,92]  },{ name:'Right Calf',           x:[52,66], y:[82,92]  },
+    { name:'Left Heel/Foot',        x:[32,48], y:[92,100] },{ name:'Right Heel/Foot',      x:[52,68], y:[92,100] }
+  ];
 
-function renderMarkers() {
-  var layer = document.getElementById('markerLayer');
-  if (!layer) return;
-  layer.innerHTML = '';
-  injuries.filter(function(inj){ return inj.view === currentView; }).forEach(function(inj) {
-    var dot = document.createElement('div');
-    dot.className = 'injury-dot' + (selectedInj === inj.id ? ' selected' : '');
-    dot.style.background = inj.color;
-    dot.style.left = inj.xPct + '%'; dot.style.top = inj.yPct + '%';
-    dot.textContent = inj.id; dot.title = inj.label + ' — ' + inj.region;
-    dot.style.pointerEvents = 'auto';
-    dot.onclick = function(e) { e.stopPropagation(); selectInjury(inj.id); };
-    layer.appendChild(dot);
-  });
-}
+  var state = {
+    currentView: 'front',
+    injuries: [],
+    pendingClick: null,
+    selectedInj: null,
+    counter: 0
+  };
 
-function selectInjury(id) {
-  selectedInj = selectedInj === id ? null : id;
-  renderMarkers(); renderInjuriesList();
-}
-
-function removeInjury(id) {
-  injuries = injuries.filter(function(i){ return i.id !== id; });
-  if (selectedInj === id) selectedInj = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput();
-}
-
-function updateNotes(id, val) {
-  var inj = injuries.filter(function(i){ return i.id===id; })[0];
-  if (inj) { inj.notes = val; updateDataOutput(); }
-}
-
-function renderInjuriesList() {
-  var list = document.getElementById('injuriesList');
-  if (!list) return;
-  if (!injuries.length) {
-    list.innerHTML = '<div class="empty-state"><div class="ei">📍</div>No injuries yet.<br>Click the body map.</div>';
-    return;
-  }
-  list.innerHTML = injuries.map(function(inj) {
-    var sel = selectedInj === inj.id;
-    return '<div>'
-      +'<div class="injury-entry'+(sel?' selected':'')+'" onclick="selectInjury('+inj.id+')">'
-      +'<div class="num" style="background:'+inj.color+'">'+inj.id+'</div>'
-      +'<div class="info"><div class="type">'+inj.label+'</div>'
-      +'<div class="loc">'+(inj.view==='front'?'▶':'◀')+' '+inj.region+'</div></div>'
-      +'<button class="rm" onclick="event.stopPropagation();removeInjury('+inj.id+')" title="Remove">×</button>'
-      +'</div>'
-      +'<div class="notes-row'+(sel?' visible':'') + '">'
-      +'<label>Notes</label>'
-      +'<input type="text" placeholder="e.g. approx. 3cm wound, bleeding controlled…" value="'+(inj.notes||'')+'" oninput="updateNotes('+inj.id+', this.value)"/>'
-      +'</div></div>';
-  }).join('');
-}
-
-function buildCSV() {
-  if (!injuries.length) return '';
-  var header = 'injury_num,type,body_view,region,notes,x_pct,y_pct';
-  var rows = injuries.map(function(i) {
-    var n = (i.notes || '').replace(/"/g, '""');
-    return i.id+','+i.label+','+i.view+','+i.region+',"'+n+'",'+i.xPct.toFixed(1)+','+i.yPct.toFixed(1);
-  });
-  return [header].concat(rows).join('\n');
-}
-
-function updateDataOutput() {
-  var out = document.getElementById('dataOutput');
-  if (out) out.textContent = buildCSV() || '// No injuries recorded yet';
-}
-
-function copyCSV() {
-  var c = buildCSV(); 
-  if (!c) { fb('No injuries to copy'); return; }
-  navigator.clipboard.writeText(c).then(function() { fb('✓ CSV copied'); }).catch(function() { fb('Copy failed'); });
-}
-
-function copyJSON() {
-  if (!injuries.length) { fb('No injuries to copy'); return; }
-  var d = injuries.map(function(i) {
-    return { injury_num:i.id, type:i.label, body_view:i.view, region:i.region, notes:i.notes,
-             coordinates:{ x:parseFloat(i.xPct.toFixed(1)), y:parseFloat(i.yPct.toFixed(1)) } };
-  });
-  navigator.clipboard.writeText(JSON.stringify(d, null, 2)).then(function() { fb('✓ JSON copied'); }).catch(function() { fb('Copy failed'); });
-}
-
-function clearAll() {
-  if (!injuries.length) return;
-  if (!confirm('Clear all recorded injuries?')) return;
-  injuries = []; counter = 0; selectedInj = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput();
-}
-
-function fb(msg) {
-  var el = document.getElementById('copyFb'); 
-  if (el) {
-    el.textContent = msg;
-    setTimeout(function(){ el.textContent = ''; }, 2000);
-  }
-}
-
-function initWidget() {
-  console.log('Initializing widget...');
-  
-  // Legend
-  var legendGrid = document.getElementById('legendGrid');
-  if (legendGrid) {
-    legendGrid.innerHTML = INJURY_TYPES.map(function(t) {
-      return '<div class="legend-item"><div class="legend-dot" style="background:'+t.color+'"></div><span>'+t.label+'</span></div>';
-    }).join('');
+  function buildBodySVG(view) {
+    var f = view === 'front';
+    return '<svg class="body-svg" viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2e3560"/><stop offset="100%" stop-color="#1a1d2e"/></radialGradient></defs><ellipse cx="100" cy="48" rx="34" ry="42" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><rect x="88" y="86" width="24" height="22" rx="4" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M58 108 C42 112 36 130 34 155 L32 235 C32 248 36 258 44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C164 258 168 248 168 235 L166 155 C164 130 158 112 142 108 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M58 112 C46 116 36 124 28 145 L20 190 C18 200 20 210 28 214 L36 216 C44 218 50 212 52 202 L58 168 L62 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M142 112 C154 116 164 124 172 145 L180 190 C182 200 180 210 172 214 L164 216 C156 218 150 212 148 202 L142 168 L138 140 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M28 214 L36 216 L40 265 L26 280 L16 268 L20 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M172 214 L164 216 L160 265 L174 280 L184 268 L180 218 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="28" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="172" cy="290" rx="14" ry="18" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M44 262 L60 268 L60 310 L140 310 L140 268 L156 262 C166 274 168 292 160 308 L152 322 L48 322 L40 308 C32 292 34 274 44 262 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M52 318 C46 328 42 346 42 365 L42 405 C42 418 48 426 58 428 L70 428 C80 428 84 420 84 408 L84 368 C84 348 80 330 72 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M148 318 C154 328 158 346 158 365 L158 405 C158 418 152 426 142 428 L130 428 C120 428 116 420 116 408 L116 368 C116 348 120 330 128 320 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="63" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="137" cy="432" rx="22" ry="14" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M42 440 C40 456 40 470 44 484 L48 502 L78 502 L80 484 L84 470 L84 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M116 440 C116 456 116 470 120 484 L122 502 L152 502 L156 484 L160 470 L158 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M44 500 L44 514 C44 518 48 520 52 520 L82 520 C86 520 82 514 80 510 L78 502 L44 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><path d="M120 500 L118 510 C116 514 118 520 122 520 L148 520 C152 520 156 518 156 514 L156 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><rect x="0" y="0" width="200" height="520" fill="transparent" style="cursor:crosshair;"/></svg>';
   }
 
-  // Injury type buttons
-  var injuryTypeBtns = document.getElementById('injuryTypeBtns');
-  if (injuryTypeBtns) {
-    injuryTypeBtns.innerHTML = INJURY_TYPES.map(function(t) {
-      return '<button class="inj-btn" data-injury-type="'+t.id+'">'
-            +'<div class="dot" style="background:'+t.color+'"></div>'+t.label+'</button>';
-    }).join('');
-    
-    document.querySelectorAll('.inj-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        selectInjuryType(this.dataset.injuryType);
-      });
-    });
-  }
-
-  // View toggle buttons
-  document.querySelectorAll('.view-toggle button').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      setView(this.dataset.view);
-    });
-  });
-
-  // Action buttons
-  var copyCSVBtn = document.getElementById('copyCSVBtn');
-  if (copyCSVBtn) copyCSVBtn.addEventListener('click', copyCSV);
-  
-  var copyJSONBtn = document.getElementById('copyJSONBtn');
-  if (copyJSONBtn) copyJSONBtn.addEventListener('click', copyJSON);
-  
-  var clearBtn = document.getElementById('clearBtn');
-  if (clearBtn) clearBtn.addEventListener('click', clearAll);
-  
-  var popupCancelBtn = document.getElementById('popupCancelBtn');
-  if (popupCancelBtn) popupCancelBtn.addEventListener('click', cancelPopup);
-
-  // Close popup on outside click
-  document.addEventListener('click', function(e) {
-    var p = document.getElementById('injuryPopup');
-    if (p && p.classList.contains('visible') && !p.contains(e.target) && !e.target.closest('.body-svg')) {
-      cancelPopup();
+  function getRegion(x, y) {
+    var rs = state.currentView === 'front' ? REGIONS_FRONT : REGIONS_BACK;
+    for (var i = 0; i < rs.length; i++) {
+      if (x >= rs[i].x[0] && x <= rs[i].x[1] && y >= rs[i].y[0] && y <= rs[i].y[1]) return rs[i].name;
     }
-  });
+    return 'Body';
+  }
 
-  // Render initial state
-  renderBodyMap();
-  renderInjuriesList();
-  updateDataOutput();
-  
-  console.log('Widget initialized successfully');
-}
+  window.setView = function(v) {
+    console.log('Setting view to:', v);
+    state.currentView = v;
+    document.querySelectorAll('.view-toggle button').forEach(function(b, i) {
+      b.classList.toggle('active', (i === 0 && v === 'front') || (i === 1 && v === 'back'));
+    });
+    renderBodyMap();
+    renderMarkers();
+  };
 
-// Wait for DOM to be fully loaded
-if (document.readyState === 'loading') {
-  console.log('DOM loading, waiting for DOMContentLoaded');
-  document.addEventListener('DOMContentLoaded', initWidget);
-} else {
-  console.log('DOM already loaded, initializing immediately');
-  initWidget();
-}
+  function renderBodyMap() {
+    var container = document.getElementById('bodyMapContainer');
+    if (!container) return;
+    var svg = container.querySelector('svg');
+    if (svg) svg.remove();
+    container.innerHTML = buildBodySVG(state.currentView) + container.innerHTML;
+  }
 
-window.addEventListener('resize', renderMarkers);
+  window.onContainerClick = function(e) {
+    console.log('Container clicked', e);
+    var svg = e.currentTarget.querySelector('svg');
+    if (!svg) return;
+    var rect = svg.getBoundingClientRect();
+    var containerRect = e.currentTarget.getBoundingClientRect();
+    var x = ((e.clientX - containerRect.left) / containerRect.offsetWidth) * 100;
+    var y = ((e.clientY - containerRect.top) / containerRect.offsetHeight) * 100;
+    console.log('Click at:', x, y);
+    
+    state.pendingClick = { xPct: x, yPct: y, view: state.currentView, region: getRegion(x, y) };
+    var popup = document.getElementById('injuryPopup');
+    popup.classList.add('visible');
+    popup.style.left = (e.clientX + 10) + 'px';
+    popup.style.top = (e.clientY + 10) + 'px';
+  };
 
-console.log('Widget script loaded');
+  window.selectInjuryType = function(tid) {
+    console.log('Selected injury type:', tid);
+    if (!state.pendingClick) return;
+    var popup = document.getElementById('injuryPopup');
+    popup.classList.remove('visible');
+    
+    state.counter++;
+    var t = INJURY_TYPES.find(function(x) { return x.id === tid; });
+    state.injuries.push({
+      id: state.counter,
+      type: t.id,
+      label: t.label,
+      color: t.color,
+      view: state.pendingClick.view,
+      region: state.pendingClick.region,
+      xPct: state.pendingClick.xPct,
+      yPct: state.pendingClick.yPct,
+      notes: ''
+    });
+    state.pendingClick = null;
+    renderMarkers();
+    renderInjuriesList();
+    updateDataOutput();
+  };
+
+  function renderMarkers() {
+    var layer = document.getElementById('markerLayer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    state.injuries.filter(function(inj) { return inj.view === state.currentView; }).forEach(function(inj) {
+      var dot = document.createElement('div');
+      dot.className = 'injury-dot' + (state.selectedInj === inj.id ? ' selected' : '');
+      dot.style.background = inj.color;
+      dot.style.left = inj.xPct + '%';
+      dot.style.top = inj.yPct + '%';
+      dot.textContent = inj.id;
+      layer.appendChild(dot);
+    });
+  }
+
+  function renderInjuriesList() {
+    var list = document.getElementById('injuriesList');
+    if (!list) return;
+    if (!state.injuries.length) {
+      list.innerHTML = '<div class="empty-state"><div class="ei">📍</div>No injuries yet.<br>Click the body map.</div>';
+      return;
+    }
+    list.innerHTML = state.injuries.map(function(inj) {
+      return '<div class="injury-entry" style="background:' + inj.color + '20; border: 1px solid ' + inj.color + '40;">' +
+        '<div class="num" style="background:' + inj.color + '">' + inj.id + '</div>' +
+        '<div class="info"><div class="type">' + inj.label + '</div><div class="loc">' + inj.region + '</div></div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function buildCSV() {
+    if (!state.injuries.length) return '';
+    var header = 'injury_num,type,body_view,region,x_pct,y_pct';
+    var rows = state.injuries.map(function(i) {
+      return i.id + ',' + i.label + ',' + i.view + ',' + i.region + ',' + i.xPct.toFixed(1) + ',' + i.yPct.toFixed(1);
+    });
+    return [header].concat(rows).join('\n');
+  }
+
+  function updateDataOutput() {
+    var out = document.getElementById('dataOutput');
+    if (out) out.textContent = buildCSV() || '// No injuries recorded yet';
+  }
+
+  window.copyCSV = function() {
+    var c = buildCSV();
+    if (!c) return;
+    navigator.clipboard.writeText(c);
+  };
+
+  window.copyJSON = function() {
+    if (!state.injuries.length) return;
+    var d = state.injuries.map(function(i) {
+      return { num: i.id, type: i.label, region: i.region, x: i.xPct.toFixed(1), y: i.yPct.toFixed(1) };
+    });
+    navigator.clipboard.writeText(JSON.stringify(d, null, 2));
+  };
+
+  window.clearAll = function() {
+    state.injuries = [];
+    state.counter = 0;
+    state.selectedInj = null;
+    renderMarkers();
+    renderInjuriesList();
+    updateDataOutput();
+  };
+
+  window.cancelPopup = function() {
+    document.getElementById('injuryPopup').classList.remove('visible');
+    state.pendingClick = null;
+  };
+
+  // Initialize
+  function init() {
+    console.log('Initializing widget');
+    
+    // Legend
+    document.getElementById('legendGrid').innerHTML = INJURY_TYPES.map(function(t) {
+      return '<div class="legend-item"><div class="legend-dot" style="background:' + t.color + '"></div><span>' + t.label + '</span></div>';
+    }).join('');
+
+    // Injury buttons
+    document.getElementById('injuryTypeBtns').innerHTML = INJURY_TYPES.map(function(t) {
+      return '<button class="inj-btn" onclick="window.selectInjuryType && selectInjuryType(\'' + t.id + '\')"><div class="dot" style="background:' + t.color + '"></div>' + t.label + '</button>';
+    }).join('');
+
+    renderBodyMap();
+    renderInjuriesList();
+    updateDataOutput();
+    console.log('Widget initialized');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
 </script>
 </body>
 </html>
