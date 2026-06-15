@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Injury Body Map Widget</title>
-<!-- JotForm Custom Widget API -->
-<script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,8 +24,8 @@
   .view-toggle button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
   .map-layout { display: grid; grid-template-columns: 200px 1fr; gap: 14px; align-items: start; }
   .body-map-container { position: relative; cursor: crosshair; user-select: none; flex-shrink: 0; }
-  .body-svg { width: 100%; height: auto; display: block; }
-  .injury-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 10px; z-index: 10; }
+  .body-svg { width: 100%; height: auto; display: block; pointer-events: auto; }
+  .injury-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 10px; z-index: 10; pointer-events: auto; }
   .injury-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
   .injury-dot.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 2px 6px rgba(0,0,0,0.5); }
   .right-col { display: flex; flex-direction: column; gap: 10px; }
@@ -46,7 +44,7 @@
   .injury-entry .info { flex: 1; min-width: 0; }
   .injury-entry .type { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .injury-entry .loc { font-size: 10px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .injury-entry .rm { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; }
+  .injury-entry .rm { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; pointer-events: auto; }
   .injury-entry .rm:hover { color: var(--red); }
   .notes-row { display: none; padding: 0 10px 8px; background: var(--bg); border: 1px solid var(--border); border-top: none; border-radius: 0 0 7px 7px; margin-top: -6px; }
   .notes-row.visible { display: block; }
@@ -60,19 +58,20 @@
   .data-output::-webkit-scrollbar { width: 3px; height: 3px; }
   .data-output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .data-actions { display: flex; gap: 8px; margin-top: 8px; }
-  .btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s; pointer-events: auto; }
   .btn-primary { background: var(--accent); color: white; flex: 1; }
   .btn-primary:hover { background: var(--accent2); }
   .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-ghost:hover { border-color: var(--text-dim); }
   .copy-fb { font-size: 10px; color: var(--green); margin-top: 4px; height: 12px; }
-  .injury-popup { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; z-index: 9999; box-shadow: 0 8px 28px rgba(0,0,0,0.7); min-width: 180px; display: none; }
+  .injury-popup { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; z-index: 99999; box-shadow: 0 8px 28px rgba(0,0,0,0.7); min-width: 180px; display: none; pointer-events: auto; }
   .injury-popup.visible { display: block; }
   .injury-popup h4 { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
-  .inj-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
+  .inj-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 4px; transition: background 0.15s; pointer-events: auto; }
   .inj-btn:hover { background: var(--surface2); }
+  .inj-btn:active { background: var(--surface2); }
   .inj-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .pop-cancel { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); width: 100%; text-align: center; background: transparent; border-left: none; border-right: none; border-bottom: none; color: var(--text-dim); cursor: pointer; font-size: 11px; }
+  .pop-cancel { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); width: 100%; text-align: center; background: transparent; border-left: none; border-right: none; border-bottom: none; color: var(--text-dim); cursor: pointer; font-size: 11px; pointer-events: auto; }
   @media (max-width: 500px) { .map-layout { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -84,8 +83,8 @@
       <div><h2>Injury Body Map</h2><p>Click the body to record injury locations</p></div>
     </div>
     <div class="view-toggle">
-      <button class="active" onclick="setView('front')">▶ Front</button>
-      <button onclick="setView('back')">◀ Back</button>
+      <button class="active" data-view="front">▶ Front</button>
+      <button data-view="back">◀ Back</button>
     </div>
   </div>
 
@@ -113,9 +112,9 @@
     <div class="panel-label">Form Data (auto-submitted with form)</div>
     <div class="data-output" id="dataOutput">// No injuries recorded yet</div>
     <div class="data-actions">
-      <button class="btn btn-primary" onclick="copyCSV()">Copy CSV</button>
-      <button class="btn btn-ghost" onclick="copyJSON()">JSON</button>
-      <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+      <button class="btn btn-primary" id="copyCSVBtn">Copy CSV</button>
+      <button class="btn btn-ghost" id="copyJSONBtn">JSON</button>
+      <button class="btn btn-ghost" id="clearBtn">Clear</button>
     </div>
     <div class="copy-fb" id="copyFb"></div>
   </div>
@@ -124,7 +123,7 @@
 <div class="injury-popup" id="injuryPopup">
   <h4>Select Injury Type</h4>
   <div id="injuryTypeBtns"></div>
-  <button class="pop-cancel" onclick="cancelPopup()">Cancel</button>
+  <button class="pop-cancel" id="popupCancelBtn">Cancel</button>
 </div>
 
 <script>
@@ -171,35 +170,13 @@ var REGIONS_BACK = [
 
 var currentView = 'front', injuries = [], pendingClick = null, selectedInj = null, counter = 0;
 
-// ── JotForm Widget API ──────────────────────────────────────────
-JFCustomWidget.subscribe('ready', function() {
-  resizeWidget();
-  JFCustomWidget.subscribe('submit', function() {
-    JFCustomWidget.sendSubmit({ valid: true, value: buildCSV() });
-  });
-});
-
-function resizeWidget() {
-  JFCustomWidget.requestFrameResize({ height: document.body.scrollHeight + 20 });
-}
-
-function buildCSV() {
-  if (!injuries.length) return '';
-  var header = 'injury_num,type,body_view,region,notes,x_pct,y_pct';
-  var rows = injuries.map(function(i) {
-    var n = (i.notes || '').replace(/"/g, '""');
-    return i.id+','+i.label+','+i.view+','+i.region+',"'+n+'",'+i.xPct.toFixed(1)+','+i.yPct.toFixed(1);
-  });
-  return [header].concat(rows).join('\n');
-}
-
 // ── Body SVG ────────────────────────────────────────────────────
 function buildBodySVG(view) {
   var f = view === 'front';
   var extra = f
     ? '<ellipse cx="88" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><ellipse cx="112" cy="46" rx="5" ry="6" fill="#0f1117" opacity="0.5"/><path d="M90 62 Q100 68 110 62" stroke="#4a5180" stroke-width="1" opacity="0.6"/>'
     : '<ellipse cx="66" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><ellipse cx="134" cy="50" rx="6" ry="9" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/><line x1="68" y1="42" x2="70" y2="35" stroke="#4a5180" stroke-width="1"/><line x1="132" y1="42" x2="130" y2="35" stroke="#4a5180" stroke-width="1"/>';
-  return '<svg class="body-svg" viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" id="bodySVG">'
+  return '<svg class="body-svg" viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" id="bodySVG" style="pointer-events: auto;">'
     +'<defs><radialGradient id="bg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2e3560"/><stop offset="100%" stop-color="#1a1d2e"/></radialGradient></defs>'
     +'<ellipse cx="100" cy="48" rx="34" ry="42" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'+extra
     +'<rect x="88" y="86" width="24" height="22" rx="4" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
@@ -219,7 +196,7 @@ function buildBodySVG(view) {
     +'<path d="M116 440 C116 456 116 470 120 484 L122 502 L152 502 L156 484 L160 470 L158 440 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
     +'<path d="M44 500 L44 514 C44 518 48 520 52 520 L82 520 C86 520 82 514 80 510 L78 502 L44 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
     +'<path d="M120 500 L118 510 C116 514 118 520 122 520 L148 520 C152 520 156 518 156 514 L156 500 Z" fill="url(#bg)" stroke="#4a5180" stroke-width="1.5"/>'
-    +'<rect id="clickOverlay" x="0" y="0" width="200" height="520" fill="transparent" style="cursor:crosshair;"/>'
+    +'<rect id="clickOverlay" x="0" y="0" width="200" height="520" fill="transparent" style="cursor:crosshair; pointer-events: auto;"/>'
     +'</svg>';
 }
 
@@ -233,8 +210,8 @@ function getRegion(x, y) {
 
 function setView(v) {
   currentView = v;
-  document.querySelectorAll('.view-toggle button').forEach(function(b, i) {
-    b.classList.toggle('active', (i===0&&v==='front')||(i===1&&v==='back'));
+  document.querySelectorAll('.view-toggle button').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.view === v);
   });
   renderBodyMap(); renderMarkers();
 }
@@ -245,11 +222,15 @@ function renderBodyMap() {
   var ml = document.getElementById('markerLayer');
   var svg = new DOMParser().parseFromString(buildBodySVG(currentView), 'image/svg+xml').documentElement;
   c.insertBefore(svg, ml);
-  c.querySelector('svg').addEventListener('click', onBodyClick);
+  setTimeout(function() {
+    var svgEl = c.querySelector('svg');
+    if (svgEl) svgEl.addEventListener('click', onBodyClick);
+  }, 0);
 }
 
 function onBodyClick(e) {
   var svg = document.getElementById('bodySVG');
+  if (!svg) return;
   var r = svg.getBoundingClientRect();
   var x = ((e.clientX - r.left) / r.width) * 100;
   var y = ((e.clientY - r.top)  / r.height) * 100;
@@ -277,7 +258,7 @@ function selectInjuryType(tid) {
     view: pendingClick.view, region: pendingClick.region,
     xPct: pendingClick.xPct, yPct: pendingClick.yPct, notes: '' });
   pendingClick = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+  renderMarkers(); renderInjuriesList(); updateDataOutput();
 }
 
 function renderMarkers() {
@@ -289,7 +270,7 @@ function renderMarkers() {
     dot.style.background = inj.color;
     dot.style.left = inj.xPct + '%'; dot.style.top = inj.yPct + '%';
     dot.textContent = inj.id; dot.title = inj.label + ' — ' + inj.region;
-    dot.style.pointerEvents = 'all';
+    dot.style.pointerEvents = 'auto';
     dot.onclick = function(e) { e.stopPropagation(); selectInjury(inj.id); };
     layer.appendChild(dot);
   });
@@ -303,7 +284,7 @@ function selectInjury(id) {
 function removeInjury(id) {
   injuries = injuries.filter(function(i){ return i.id !== id; });
   if (selectedInj === id) selectedInj = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+  renderMarkers(); renderInjuriesList(); updateDataOutput();
 }
 
 function updateNotes(id, val) {
@@ -333,13 +314,23 @@ function renderInjuriesList() {
   }).join('');
 }
 
+function buildCSV() {
+  if (!injuries.length) return '';
+  var header = 'injury_num,type,body_view,region,notes,x_pct,y_pct';
+  var rows = injuries.map(function(i) {
+    var n = (i.notes || '').replace(/"/g, '""');
+    return i.id+','+i.label+','+i.view+','+i.region+',"'+n+'",'+i.xPct.toFixed(1)+','+i.yPct.toFixed(1);
+  });
+  return [header].concat(rows).join('\n');
+}
+
 function updateDataOutput() {
   document.getElementById('dataOutput').textContent = buildCSV() || '// No injuries recorded yet';
 }
 
 function copyCSV() {
   var c = buildCSV(); if (!c) { fb('No injuries to copy'); return; }
-  navigator.clipboard.writeText(c); fb('✓ CSV copied');
+  navigator.clipboard.writeText(c).then(function() { fb('✓ CSV copied'); }).catch(function() { fb('Copy failed'); });
 }
 
 function copyJSON() {
@@ -348,14 +339,14 @@ function copyJSON() {
     return { injury_num:i.id, type:i.label, body_view:i.view, region:i.region, notes:i.notes,
              coordinates:{ x:parseFloat(i.xPct.toFixed(1)), y:parseFloat(i.yPct.toFixed(1)) } };
   });
-  navigator.clipboard.writeText(JSON.stringify(d, null, 2)); fb('✓ JSON copied');
+  navigator.clipboard.writeText(JSON.stringify(d, null, 2)).then(function() { fb('✓ JSON copied'); }).catch(function() { fb('Copy failed'); });
 }
 
 function clearAll() {
   if (!injuries.length) return;
   if (!confirm('Clear all recorded injuries?')) return;
   injuries = []; counter = 0; selectedInj = null;
-  renderMarkers(); renderInjuriesList(); updateDataOutput(); resizeWidget();
+  renderMarkers(); renderInjuriesList(); updateDataOutput();
 }
 
 function fb(msg) {
@@ -363,22 +354,40 @@ function fb(msg) {
   setTimeout(function(){ el.textContent = ''; }, 2000);
 }
 
+// ── Event Listeners ─────────────────────────────────────────────
+document.querySelectorAll('.view-toggle button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    setView(this.dataset.view);
+  });
+});
+
+document.getElementById('copyCSVBtn').addEventListener('click', copyCSV);
+document.getElementById('copyJSONBtn').addEventListener('click', copyJSON);
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+document.getElementById('popupCancelBtn').addEventListener('click', cancelPopup);
+
+document.addEventListener('click', function(e) {
+  var p = document.getElementById('injuryPopup');
+  if (p.classList.contains('visible') && !p.contains(e.target) && !e.target.closest('.body-svg')) cancelPopup();
+});
+
+window.addEventListener('resize', renderMarkers);
+
 // ── Init ────────────────────────────────────────────────────────
 document.getElementById('legendGrid').innerHTML = INJURY_TYPES.map(function(t) {
   return '<div class="legend-item"><div class="legend-dot" style="background:'+t.color+'"></div><span>'+t.label+'</span></div>';
 }).join('');
 
 document.getElementById('injuryTypeBtns').innerHTML = INJURY_TYPES.map(function(t) {
-  return '<button class="inj-btn" onclick="selectInjuryType(\''+t.id+'\')">'
+  return '<button class="inj-btn" data-injury-type="'+t.id+'">'
         +'<div class="dot" style="background:'+t.color+'"></div>'+t.label+'</button>';
 }).join('');
 
-document.addEventListener('click', function(e) {
-  var p = document.getElementById('injuryPopup');
-  if (p.classList.contains('visible') && !p.contains(e.target)) cancelPopup();
+document.querySelectorAll('.inj-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    selectInjuryType(this.dataset.injuryType);
+  });
 });
-
-window.addEventListener('resize', renderMarkers);
 
 renderBodyMap();
 renderInjuriesList();
