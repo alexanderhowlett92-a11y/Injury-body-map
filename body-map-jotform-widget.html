@@ -170,7 +170,6 @@ var REGIONS_BACK = [
 
 var currentView = 'front', injuries = [], pendingClick = null, selectedInj = null, counter = 0;
 
-// ── Body SVG ────────────────────────────────────────────────────
 function buildBodySVG(view) {
   var f = view === 'front';
   var extra = f
@@ -218,14 +217,16 @@ function setView(v) {
 
 function renderBodyMap() {
   var c = document.getElementById('bodyMapContainer');
-  var ex = c.querySelector('svg'); if (ex) ex.remove();
+  if (!c) return;
+  var ex = c.querySelector('svg'); 
+  if (ex) ex.remove();
   var ml = document.getElementById('markerLayer');
-  var svg = new DOMParser().parseFromString(buildBodySVG(currentView), 'image/svg+xml').documentElement;
-  c.insertBefore(svg, ml);
-  setTimeout(function() {
-    var svgEl = c.querySelector('svg');
-    if (svgEl) svgEl.addEventListener('click', onBodyClick);
-  }, 0);
+  var svgStr = buildBodySVG(currentView);
+  var svg = new DOMParser().parseFromString(svgStr, 'text/html').querySelector('svg');
+  if (svg) {
+    c.insertBefore(svg, ml);
+    svg.addEventListener('click', onBodyClick);
+  }
 }
 
 function onBodyClick(e) {
@@ -237,6 +238,7 @@ function onBodyClick(e) {
   if (x < 0 || x > 100 || y < 0 || y > 100) return;
   pendingClick = { xPct: x, yPct: y, view: currentView, region: getRegion(x, y) };
   var popup = document.getElementById('injuryPopup');
+  if (!popup) return;
   popup.classList.add('visible');
   var left = e.clientX + 10, top = e.clientY - 10;
   if (left + 200 > window.innerWidth)  left = e.clientX - 210;
@@ -245,15 +247,18 @@ function onBodyClick(e) {
 }
 
 function cancelPopup() {
-  document.getElementById('injuryPopup').classList.remove('visible');
+  var popup = document.getElementById('injuryPopup');
+  if (popup) popup.classList.remove('visible');
   pendingClick = null;
 }
 
 function selectInjuryType(tid) {
   if (!pendingClick) return;
-  document.getElementById('injuryPopup').classList.remove('visible');
+  var popup = document.getElementById('injuryPopup');
+  if (popup) popup.classList.remove('visible');
   counter++;
   var t = INJURY_TYPES.filter(function(x){ return x.id===tid; })[0];
+  if (!t) return;
   injuries.push({ id: counter, type: t.id, label: t.label, color: t.color,
     view: pendingClick.view, region: pendingClick.region,
     xPct: pendingClick.xPct, yPct: pendingClick.yPct, notes: '' });
@@ -263,6 +268,7 @@ function selectInjuryType(tid) {
 
 function renderMarkers() {
   var layer = document.getElementById('markerLayer');
+  if (!layer) return;
   layer.innerHTML = '';
   injuries.filter(function(inj){ return inj.view === currentView; }).forEach(function(inj) {
     var dot = document.createElement('div');
@@ -294,6 +300,7 @@ function updateNotes(id, val) {
 
 function renderInjuriesList() {
   var list = document.getElementById('injuriesList');
+  if (!list) return;
   if (!injuries.length) {
     list.innerHTML = '<div class="empty-state"><div class="ei">📍</div>No injuries yet.<br>Click the body map.</div>';
     return;
@@ -325,11 +332,13 @@ function buildCSV() {
 }
 
 function updateDataOutput() {
-  document.getElementById('dataOutput').textContent = buildCSV() || '// No injuries recorded yet';
+  var out = document.getElementById('dataOutput');
+  if (out) out.textContent = buildCSV() || '// No injuries recorded yet';
 }
 
 function copyCSV() {
-  var c = buildCSV(); if (!c) { fb('No injuries to copy'); return; }
+  var c = buildCSV(); 
+  if (!c) { fb('No injuries to copy'); return; }
   navigator.clipboard.writeText(c).then(function() { fb('✓ CSV copied'); }).catch(function() { fb('Copy failed'); });
 }
 
@@ -350,48 +359,79 @@ function clearAll() {
 }
 
 function fb(msg) {
-  var el = document.getElementById('copyFb'); el.textContent = msg;
-  setTimeout(function(){ el.textContent = ''; }, 2000);
+  var el = document.getElementById('copyFb'); 
+  if (el) {
+    el.textContent = msg;
+    setTimeout(function(){ el.textContent = ''; }, 2000);
+  }
 }
 
-// ── Event Listeners ─────────────────────────────────────────────
-document.querySelectorAll('.view-toggle button').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    setView(this.dataset.view);
+function initWidget() {
+  // Legend
+  var legendGrid = document.getElementById('legendGrid');
+  if (legendGrid) {
+    legendGrid.innerHTML = INJURY_TYPES.map(function(t) {
+      return '<div class="legend-item"><div class="legend-dot" style="background:'+t.color+'"></div><span>'+t.label+'</span></div>';
+    }).join('');
+  }
+
+  // Injury type buttons
+  var injuryTypeBtns = document.getElementById('injuryTypeBtns');
+  if (injuryTypeBtns) {
+    injuryTypeBtns.innerHTML = INJURY_TYPES.map(function(t) {
+      return '<button class="inj-btn" data-injury-type="'+t.id+'">'
+            +'<div class="dot" style="background:'+t.color+'"></div>'+t.label+'</button>';
+    }).join('');
+    
+    document.querySelectorAll('.inj-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        selectInjuryType(this.dataset.injuryType);
+      });
+    });
+  }
+
+  // View toggle buttons
+  document.querySelectorAll('.view-toggle button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      setView(this.dataset.view);
+    });
   });
-});
 
-document.getElementById('copyCSVBtn').addEventListener('click', copyCSV);
-document.getElementById('copyJSONBtn').addEventListener('click', copyJSON);
-document.getElementById('clearBtn').addEventListener('click', clearAll);
-document.getElementById('popupCancelBtn').addEventListener('click', cancelPopup);
+  // Action buttons
+  var copyCSVBtn = document.getElementById('copyCSVBtn');
+  if (copyCSVBtn) copyCSVBtn.addEventListener('click', copyCSV);
+  
+  var copyJSONBtn = document.getElementById('copyJSONBtn');
+  if (copyJSONBtn) copyJSONBtn.addEventListener('click', copyJSON);
+  
+  var clearBtn = document.getElementById('clearBtn');
+  if (clearBtn) clearBtn.addEventListener('click', clearAll);
+  
+  var popupCancelBtn = document.getElementById('popupCancelBtn');
+  if (popupCancelBtn) popupCancelBtn.addEventListener('click', cancelPopup);
 
-document.addEventListener('click', function(e) {
-  var p = document.getElementById('injuryPopup');
-  if (p.classList.contains('visible') && !p.contains(e.target) && !e.target.closest('.body-svg')) cancelPopup();
-});
+  // Close popup on outside click
+  document.addEventListener('click', function(e) {
+    var p = document.getElementById('injuryPopup');
+    if (p && p.classList.contains('visible') && !p.contains(e.target) && !e.target.closest('.body-svg')) {
+      cancelPopup();
+    }
+  });
+
+  // Render initial state
+  renderBodyMap();
+  renderInjuriesList();
+  updateDataOutput();
+}
+
+// Wait for DOM to be fully loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWidget);
+} else {
+  initWidget();
+}
 
 window.addEventListener('resize', renderMarkers);
-
-// ── Init ────────────────────────────────────────────────────────
-document.getElementById('legendGrid').innerHTML = INJURY_TYPES.map(function(t) {
-  return '<div class="legend-item"><div class="legend-dot" style="background:'+t.color+'"></div><span>'+t.label+'</span></div>';
-}).join('');
-
-document.getElementById('injuryTypeBtns').innerHTML = INJURY_TYPES.map(function(t) {
-  return '<button class="inj-btn" data-injury-type="'+t.id+'">'
-        +'<div class="dot" style="background:'+t.color+'"></div>'+t.label+'</button>';
-}).join('');
-
-document.querySelectorAll('.inj-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    selectInjuryType(this.dataset.injuryType);
-  });
-});
-
-renderBodyMap();
-renderInjuriesList();
-updateDataOutput();
 </script>
 </body>
 </html>
