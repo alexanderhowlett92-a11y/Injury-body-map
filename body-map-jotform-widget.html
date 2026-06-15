@@ -127,6 +127,8 @@
 </div>
 
 <script>
+console.log('Widget script starting...');
+
 var INJURY_TYPES = [
   { id: 'laceration',  label: 'Laceration',        color: '#ef4444' },
   { id: 'fracture',    label: 'Fracture',           color: '#a855f7' },
@@ -208,6 +210,7 @@ function getRegion(x, y) {
 }
 
 function setView(v) {
+  console.log('Setting view to:', v);
   currentView = v;
   document.querySelectorAll('.view-toggle button').forEach(function(b) {
     b.classList.toggle('active', b.dataset.view === v);
@@ -216,29 +219,43 @@ function setView(v) {
 }
 
 function renderBodyMap() {
+  console.log('Rendering body map...');
   var c = document.getElementById('bodyMapContainer');
-  if (!c) return;
+  if (!c) { console.error('bodyMapContainer not found'); return; }
   var ex = c.querySelector('svg'); 
   if (ex) ex.remove();
   var ml = document.getElementById('markerLayer');
   var svgStr = buildBodySVG(currentView);
-  var svg = new DOMParser().parseFromString(svgStr, 'text/html').querySelector('svg');
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(svgStr, 'text/html');
+  var svg = doc.querySelector('svg');
   if (svg) {
     c.insertBefore(svg, ml);
+    console.log('SVG inserted, adding click listener');
     svg.addEventListener('click', onBodyClick);
+  } else {
+    console.error('SVG parsing failed');
   }
 }
 
 function onBodyClick(e) {
+  console.log('Body click detected!', e);
   var svg = document.getElementById('bodySVG');
-  if (!svg) return;
+  if (!svg) { console.error('SVG element not found'); return; }
   var r = svg.getBoundingClientRect();
   var x = ((e.clientX - r.left) / r.width) * 100;
   var y = ((e.clientY - r.top)  / r.height) * 100;
-  if (x < 0 || x > 100 || y < 0 || y > 100) return;
-  pendingClick = { xPct: x, yPct: y, view: currentView, region: getRegion(x, y) };
+  console.log('Click coordinates:', x, y);
+  if (x < 0 || x > 100 || y < 0 || y > 100) { console.log('Click outside bounds'); return; }
+  
+  var region = getRegion(x, y);
+  console.log('Region selected:', region);
+  
+  pendingClick = { xPct: x, yPct: y, view: currentView, region: region };
   var popup = document.getElementById('injuryPopup');
-  if (!popup) return;
+  if (!popup) { console.error('Popup not found'); return; }
+  
+  console.log('Showing popup');
   popup.classList.add('visible');
   var left = e.clientX + 10, top = e.clientY - 10;
   if (left + 200 > window.innerWidth)  left = e.clientX - 210;
@@ -247,21 +264,24 @@ function onBodyClick(e) {
 }
 
 function cancelPopup() {
+  console.log('Canceling popup');
   var popup = document.getElementById('injuryPopup');
   if (popup) popup.classList.remove('visible');
   pendingClick = null;
 }
 
 function selectInjuryType(tid) {
-  if (!pendingClick) return;
+  console.log('Selecting injury type:', tid);
+  if (!pendingClick) { console.error('No pending click'); return; }
   var popup = document.getElementById('injuryPopup');
   if (popup) popup.classList.remove('visible');
   counter++;
   var t = INJURY_TYPES.filter(function(x){ return x.id===tid; })[0];
-  if (!t) return;
+  if (!t) { console.error('Injury type not found:', tid); return; }
   injuries.push({ id: counter, type: t.id, label: t.label, color: t.color,
     view: pendingClick.view, region: pendingClick.region,
     xPct: pendingClick.xPct, yPct: pendingClick.yPct, notes: '' });
+  console.log('Injury added:', counter);
   pendingClick = null;
   renderMarkers(); renderInjuriesList(); updateDataOutput();
 }
@@ -367,6 +387,8 @@ function fb(msg) {
 }
 
 function initWidget() {
+  console.log('Initializing widget...');
+  
   // Legend
   var legendGrid = document.getElementById('legendGrid');
   if (legendGrid) {
@@ -422,16 +444,22 @@ function initWidget() {
   renderBodyMap();
   renderInjuriesList();
   updateDataOutput();
+  
+  console.log('Widget initialized successfully');
 }
 
 // Wait for DOM to be fully loaded
 if (document.readyState === 'loading') {
+  console.log('DOM loading, waiting for DOMContentLoaded');
   document.addEventListener('DOMContentLoaded', initWidget);
 } else {
+  console.log('DOM already loaded, initializing immediately');
   initWidget();
 }
 
 window.addEventListener('resize', renderMarkers);
+
+console.log('Widget script loaded');
 </script>
 </body>
 </html>
